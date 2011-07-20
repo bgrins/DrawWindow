@@ -6,9 +6,8 @@
 <script src='../scripts/jquery-1.6.1.js'></script>
 <script src='../scripts/drawWindow.js'></script>
 <script type='text/javascript'>
-
 $(function() {
-	$("#draw-window-helper a").click(function() {
+	$("#draw-window").click(function() {
 		window.drawWindow(document, function(canvas) {
 			window.open(canvas.toDataURL("image/png"));
 		});
@@ -35,7 +34,7 @@ $(function() {
 
 </head>
 <body>
-<div id='draw-window-helper'><a href='javascript:drawWindow();'>Draw Window</a></div>
+<div><a href='#' id='draw-window'>Draw Window</a> | <a href='../'>Back</a></div>
 	<strong>Some strong text <em>Nested EM2hhhhhhhhh That will break kjhjkjhkjjkhjkhjkhjkhkjhjhkhjhjhjkjhjhhjjhkhjkjkhjkhhkjhdddddddkkhj</em></strong><br />
 	<em>Some emphasized text <strong>Nested Strong</strong></em><br />
 	<p>
