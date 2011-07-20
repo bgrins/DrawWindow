@@ -1,5 +1,6 @@
 # DrawWindow
 a JavaScript based HTML renderer in Canvas 
+http://bgrins.github.com/DrawWindow/
 
 ## What is it?
 Based on the drawWindow functionality in Firefox https://developer.mozilla.org/en/Drawing_Graphics_with_Canvas#Rendering_Web_Content_Into_A_Canvas
@@ -18,4 +19,4 @@ There are many things that are not complete with this implementation.  It would 
 * Browser support is slim.  I have tested mainly in Chrome, though it should work in Firefox and Safari.
 ** IE support requires flash canvas, and I seem to remember some problems with copying on canvas into another with that library
 * Cross domain images do not work as of now.  They need to be proxied from a similar domain or passed as base64 using a cross domain message to prevent permission errors.
-
+* Tests pages are lacking - I had a number of other tests in earlier implementations of this that haven't gotten ported over.

@@ -2,70 +2,7 @@
 
 window.drawWindow = render;
 
-var settings = {
-	logLevel: 1
-};
-
-function computedStyle(elem, styles) {
-
-	// IE - Use jQuery CSS.  Others - Load the computedStyle once and read from it
-	
-	var ret = { };
-	
-	if ($.browser.msie) {
-		var el = $(elem);
-		for (var i = 0, len = styles.length; i < len; i++) {
-			var attr = styles[i], val;
-			if (attr == 'outline-width') { val = 0; }
-			else { val = el.css(attr); }
-			
-			ret[$.camelCase(attr)] = val;
-		}
-	}
-	else {	
-		var defaultView = elem.ownerDocument.defaultView;
-		var computedStyle = defaultView.getComputedStyle( elem, true );
-		for (var i = 0, len = styles.length; i < len; i++) {
-			ret[$.camelCase(styles[i])] = computedStyle.getPropertyValue( styles[i] );
-		}
-	}
-	
-	return ret;
-}
-
-function createCanvas(doc, w, h) {
-	var c = (doc || document).createElement("canvas");
-    if (typeof FlashCanvas != "undefined") {
-      FlashCanvas.initElement(c);
-    }
-    if (w && h) {
-    	c.width = w;
-    	c.height = h;
-    }
-    return c;	
-}
-function getDoctypeString(doc) {
-	if ($.browser.msie) {
-		var doctype = doc.all[0].text;
-		return doctype || "";
-	}
-	else {
-		var doctype = doc.doctype;
-		if (!doctype) {
-			return "";
-		}
-		var publicID = doctype.publicId;
-		var systemID = doctype.systemId;
-		var name = doctype.name;
-		
-		if (!publicID) {
-			return "<!DOCTYPE " + name + ">"
-		}
-		
-		return "<!DOCTYPE " + name + " PUBLIC \"" + publicID + "\" \"" + systemID + "\">";
-	}
-}
-var getUniqueID = (function(id) { return function() { return id++; } })(0);
+var logLevel = 1;
 var ignoreTags = { 'style':1, 'br': 1, 'script': 1, 'link': 1 };
 var styleAttributes = [
 	'border-top-style', 'border-top-color',
@@ -87,85 +24,6 @@ var styleAttributesPx = [
 	'top', 'bottom', 'left', 'right', 
 	'line-height', 'font-size'
 ];
-
-
-function orderByZIndex(el1, el2) {
-   return el1.css.zIndex - el2.css.zIndex;
-}
-
-function getScrolledRects(rects, scrollElement) {
-
-	scrollElement = scrollElement || rectElement;
-	var body = scrollElement.ownerDocument.body;
-	
-	var scrollTop = body.scrollTop, scrollLeft = body.scrollLeft;
-	
-	// http://stackoverflow.com/questions/442404/dynamically-retrieve-html-element-x-y-position-with-javascript
-	// offsetParent if we want to treat frames the same way??
-	
-	var parent = scrollElement;
-	while (parent != body) {
-		parent = parent.parentNode;
-		if (parent == body) { break; }
-		
-		scrollTop += parent.scrollTop;
-		scrollLeft += parent.scrollLeft;
-	}
-	
-	var clientRects = [];
-	
-	for (var i = 0; i < rects.length; i++) {
-		var rect = rects[i];
-		clientRects.push({
-			left: rect.left + scrollLeft,
-			top: rect.top + scrollTop,
-			bottom: rect.bottom + scrollTop,
-			right: rect.right + scrollLeft,
-			width: rect.width,
-			height: rect.height
-		})
-	}
-	
-	return clientRects;
-}
-
-function getClippingRect(dom, css) {
-	var outerHeight = $(dom).outerHeight();
-	var outerWidth = $(dom).outerWidth();
-	var borderLeftWidth = css.borderLeftWidth;
-	var borderTopWidth = css.borderTopWidth;
-	var borderRightWidth = css.borderRightWidth;
-	var borderBottomWidth = css.borderBottomWidth;
-	
-	var rect = {
-		top: dom.offsetTop + borderTopWidth,
-		left: dom.offsetLeft + borderLeftWidth,
-		width: outerWidth - borderLeftWidth - borderRightWidth,
-		height: outerHeight - borderTopWidth - borderBottomWidth
-	};
-	
-	rect.bottom = rect.top + rect.height;
-	rect.right = rect.left + rect.width;
-	return rect;
-}
-
-function getLetterRect(el, offset) {
-	var doc = el.ownerDocument;
-	var range = doc.createRange();
-	var win = doc.defaultView;
-	
-	range.setStart(el, offset);
-	range.setEnd(el, offset + 1);
-	
-	var sel = win.getSelection();
-	sel.removeAllRanges();
-	sel.addRange(range);
-	
-	var rangeRects = sel.getRangeAt(0).getClientRects();
-	var clientRect = getScrolledRects(rangeRects, el.parentNode)[0];
-	sel.removeAllRanges()
-	return clientRect;
-}
 
 function el(dom, onready) {	
 	
@@ -217,7 +75,6 @@ function el(dom, onready) {
 }
 
 el.prototype.clip = function(rect) {
-	
 	return rect;
 };
 
@@ -564,20 +421,159 @@ function retrieveImage(src, cb, ownerDocument, useBroken) {
 	}
 }
 
+
+function orderByZIndex(el1, el2) {
+   return el1.css.zIndex - el2.css.zIndex;
+}
+
+function getScrolledRects(rects, scrollElement) {
+
+	scrollElement = scrollElement || rectElement;
+	var body = scrollElement.ownerDocument.body;
+	
+	var scrollTop = body.scrollTop, scrollLeft = body.scrollLeft;
+	
+	// http://stackoverflow.com/questions/442404/dynamically-retrieve-html-element-x-y-position-with-javascript
+	// offsetParent if we want to treat frames the same way??
+	
+	var parent = scrollElement;
+	while (parent != body) {
+		parent = parent.parentNode;
+		if (parent == body) { break; }
+		
+		scrollTop += parent.scrollTop;
+		scrollLeft += parent.scrollLeft;
+	}
+	
+	var clientRects = [];
+	
+	for (var i = 0; i < rects.length; i++) {
+		var rect = rects[i];
+		clientRects.push({
+			left: rect.left + scrollLeft,
+			top: rect.top + scrollTop,
+			bottom: rect.bottom + scrollTop,
+			right: rect.right + scrollLeft,
+			width: rect.width,
+			height: rect.height
+		})
+	}
+	
+	return clientRects;
+}
+
+function getClippingRect(dom, css) {
+	var outerHeight = $(dom).outerHeight();
+	var outerWidth = $(dom).outerWidth();
+	var borderLeftWidth = css.borderLeftWidth;
+	var borderTopWidth = css.borderTopWidth;
+	var borderRightWidth = css.borderRightWidth;
+	var borderBottomWidth = css.borderBottomWidth;
+	
+	var rect = {
+		top: dom.offsetTop + borderTopWidth,
+		left: dom.offsetLeft + borderLeftWidth,
+		width: outerWidth - borderLeftWidth - borderRightWidth,
+		height: outerHeight - borderTopWidth - borderBottomWidth
+	};
+	
+	rect.bottom = rect.top + rect.height;
+	rect.right = rect.left + rect.width;
+	return rect;
+}
+
+function getLetterRect(el, offset) {
+	var doc = el.ownerDocument;
+	var range = doc.createRange();
+	var win = doc.defaultView;
+	
+	range.setStart(el, offset);
+	range.setEnd(el, offset + 1);
+	
+	var sel = win.getSelection();
+	sel.removeAllRanges();
+	sel.addRange(range);
+	
+	var rangeRects = sel.getRangeAt(0).getClientRects();
+	var clientRect = getScrolledRects(rangeRects, el.parentNode)[0];
+	sel.removeAllRanges()
+	return clientRect;
+}
+
+
+function computedStyle(elem, styles) {
+
+	// IE - Use jQuery CSS.  Others - Load the computedStyle once and read from it
+	
+	var ret = { };
+	
+	if ($.browser.msie) {
+		var el = $(elem);
+		for (var i = 0, len = styles.length; i < len; i++) {
+			var attr = styles[i], val;
+			if (attr == 'outline-width') { val = 0; }
+			else { val = el.css(attr); }
+			
+			ret[$.camelCase(attr)] = val;
+		}
+	}
+	else {	
+		var defaultView = elem.ownerDocument.defaultView;
+		var computedStyle = defaultView.getComputedStyle( elem, true );
+		for (var i = 0, len = styles.length; i < len; i++) {
+			ret[$.camelCase(styles[i])] = computedStyle.getPropertyValue( styles[i] );
+		}
+	}
+	
+	return ret;
+}
+
+function createCanvas(doc, w, h) {
+	var c = (doc || document).createElement("canvas");
+    if (typeof FlashCanvas != "undefined") {
+      FlashCanvas.initElement(c);
+    }
+    if (w && h) {
+    	c.width = w;
+    	c.height = h;
+    }
+    return c;	
+}
+function getDoctypeString(doc) {
+	if ($.browser.msie) {
+		var doctype = doc.all[0].text;
+		return doctype || "";
+	}
+	else {
+		var doctype = doc.doctype;
+		if (!doctype) {
+			return "";
+		}
+		var publicID = doctype.publicId;
+		var systemID = doctype.systemId;
+		var name = doctype.name;
+		
+		if (!publicID) {
+			return "<!DOCTYPE " + name + ">"
+		}
+		
+		return "<!DOCTYPE " + name + " PUBLIC \"" + publicID + "\" \"" + systemID + "\">";
+	}
+}
+
+
 function assert(isTrue) {if (!isTrue){ log("ASSERTION FAILURE", arguments); }}
 function log() { if (window.console) { console.log(Array.prototype.slice.apply(arguments)); } }
 function time(n) { if (window.console) { console.time(n); } }
 function timeEnd(n) { if (window.console) { console.timeEnd(n); } }
-function log1() { if (settings.logLevel >= 1) { log.apply(this, arguments); } }
-function log2() { if (settings.logLevel >= 2) { log.apply(this, arguments); } }
+function log1() { if (logLevel >= 1) { log.apply(this, arguments); } }
+function log2() { if (logLevel >= 2) { log.apply(this, arguments); } }
 function error(msg) { throw "[drawWindow] " + msg; return false; }
 
 retrieveImage.cache = { };
 retrieveImage.transparentImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAADLUlEQVR4Ae3QQREAAAiAMPqXVjv4HUeCNXWLAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAwENgAfmTAf/IVJfgAAAAAElFTkSuQmCC";
 
 retrieveImage.brokenImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAVBAMAAABWJ8jiAAAAIVBMVEUAAAAA//8A/wDAwMD/AP//AACAgIAAAID///8AgAAAAP87p9+eAAAAb0lEQVQImWPogIEGBmQmAwhkgJkcIKE0CNMYCDIyIEzLycYZbRDmpAnGDAwQ5swJxsYNEKYBM5xpbLxqAcQEU2PjhVCmSbDxqgoo09UYqB/CdAnuaIYwDYBOgjKNgSyoYRAngh0JZDBALMbuCzgTAD+sVWJQUviMAAAAAElFTkSuQmCC";
-
-
 
 // Kick off rendering if this has been loaded into an iframe
 if (window.parent != window && window.parent.drawWindowReady) {
