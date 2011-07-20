@@ -1,7 +1,8 @@
 (function() {
 
-window.h2c = {
-	render: render,
+window.drawWindow = render;
+
+var settings = {
 	logLevel: 1
 };
 
@@ -65,7 +66,7 @@ function getDoctypeString(doc) {
 	}
 }
 var getUniqueID = (function(id) { return function() { return id++; } })(0);
-var ignoreTags = { 'style':1, 'br': 1, 'script': 1, 'link': 1, 'h2c': 1, 'span.h2c': 1 };
+var ignoreTags = { 'style':1, 'br': 1, 'script': 1, 'link': 1 };
 var styleAttributes = [
 	'border-top-style', 'border-top-color',
 	'border-right-style', 'border-right-color',
@@ -203,7 +204,7 @@ function el(dom, onready) {
 	
 	//log("Initialized " + this.tagName, this);
 	
-	this.children = $(dom).children(":not(.h2c-ignore)").map(function() {
+	this.children = $(dom).children(":not(.drawWindow-ignore)").map(function() {
 	    return new el(this);
 	}).sort(orderByZIndex);
 	
@@ -522,10 +523,6 @@ function render(doc, cb, progCallback) {
 	});
 }
 
-if (window.parent != window && window.parent.drawWindowReady) {
-	$(function() { window.parent.drawWindowReady(window, $); });
-}
-
 
 // retrieveImage: a method to interface with image loading, errors, and proxy
 function retrieveImageFromCache(src) {
@@ -571,14 +568,20 @@ function assert(isTrue) {if (!isTrue){ log("ASSERTION FAILURE", arguments); }}
 function log() { if (window.console) { console.log(Array.prototype.slice.apply(arguments)); } }
 function time(n) { if (window.console) { console.time(n); } }
 function timeEnd(n) { if (window.console) { console.timeEnd(n); } }
-function log1() { if (logLevel >= 1) { log.apply(this, arguments); } }
-function log2() { if (logLevel >= 2) { log.apply(this, arguments); } }
-function error(msg) { throw "[H2C] " + msg; return false; }
+function log1() { if (settings.logLevel >= 1) { log.apply(this, arguments); } }
+function log2() { if (settings.logLevel >= 2) { log.apply(this, arguments); } }
+function error(msg) { throw "[drawWindow] " + msg; return false; }
 
 retrieveImage.cache = { };
 retrieveImage.transparentImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAADLUlEQVR4Ae3QQREAAAiAMPqXVjv4HUeCNXWLAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAwENgAfmTAf/IVJfgAAAAAElFTkSuQmCC";
 
 retrieveImage.brokenImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAVBAMAAABWJ8jiAAAAIVBMVEUAAAAA//8A/wDAwMD/AP//AACAgIAAAID///8AgAAAAP87p9+eAAAAb0lEQVQImWPogIEGBmQmAwhkgJkcIKE0CNMYCDIyIEzLycYZbRDmpAnGDAwQ5swJxsYNEKYBM5xpbLxqAcQEU2PjhVCmSbDxqgoo09UYqB/CdAnuaIYwDYBOgjKNgSyoYRAngh0JZDBALMbuCzgTAD+sVWJQUviMAAAAAElFTkSuQmCC";
 
+
+
+// Kick off rendering if this has been loaded into an iframe
+if (window.parent != window && window.parent.drawWindowReady) {
+	$(function() { window.parent.drawWindowReady(window, $); });
+}
 
 })();

@@ -63,7 +63,7 @@ function writeFrame(appendTo) {
 }
 
 
-var PROGRESS = "<div class='h2c-ignore' style='position:fixed; cursor:pointer; width:400px; height:50px; background:#dfd; left:40%; top:20%; z-index:100002;'></div>";
+var PROGRESS = "<div class='drawWindow-ignore' style='position:fixed; cursor:pointer; width:400px; height:50px; background:#dfd; left:40%; top:20%; z-index:100002;'></div>";
 var CLOSE = "<div style='position:absolute; cursor:pointer; width:25px; height:25px; background:red; right:10px; top:10px; z-index:100002;'></div>";
 
 // A custom display of the image (overlay the image on top of existing page with ability to close)
@@ -98,7 +98,7 @@ window.drawWindowReady = function(innerWin, $) {
 		prog.html(msg);
 	}
 	
-	innerWin.h2c.render(parentDoc, ondone, onprog);
+	innerWin.drawWindow(parentDoc, ondone, onprog);
 }
 
 window.customDrawWindow = function() {
