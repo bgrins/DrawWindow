@@ -1,24 +1,9 @@
 (function() {
 
 window.h2c = {
-	render: render
-};
-
-var settings = {
+	render: render,
 	logLevel: 1
 };
-
-function postValues() {
-	window.open("http://localhost:8080/preview");
-}
-function assert(isTrue) {if (!isTrue){
-	log("ASSERTION FAILURE - NEED TO REPORT SERIALIZED ERROR TO SERVER", arguments);
-}}
-
-function log() { if (window.console) { console.log(Array.prototype.slice.apply(arguments)); } }
-function log1() { if (settings.logLevel >= 1) { log.apply(this, arguments); } }
-function log2() { if (settings.logLevel >= 2) { log.apply(this, arguments); } }
-function error(msg) { throw "[H2C] " + msg; return false; }
 
 function computedStyle(elem, styles) {
 
@@ -511,6 +496,10 @@ function render(doc, cb, progCallback) {
 	var canvas = createCanvas(doc);
 	var ctx = canvas.getContext("2d");
 	
+	cb = cb || function() { };
+	progCallback = progCallback || function() { };
+	
+	
 	body.normalize();
 	
 	var width = $(doc).width()
@@ -518,70 +507,25 @@ function render(doc, cb, progCallback) {
 		
 	canvas.width = width;
 	canvas.height = height;
-	ctx.fillStyle = "rgba(255,0,0,.2)";
-	ctx.fillRect(0, 0, width, height);
+	//ctx.fillStyle = "rgba(255,0,0,.2)";
+	//ctx.fillRect(0, 0, width, height);
 	
-	console.time("Initializing");
+	time("Initializing");
 	progCallback("Initilizing Elements");
 	new el(body, function(bodyElement) {
-		console.timeEnd("Initializing");
-		console.time("Render");
+		timeEnd("Initializing");
+		time("Render");
 		progCallback("Taking Screenshot");
 		bodyElement.render(ctx);
-		console.timeEnd("Render");
+		timeEnd("Render");
 		cb(canvas);
 	});
 }
 
-var PROGRESS = "<div class='h2c-ignore' style='position:fixed; cursor:pointer; width:400px; height:50px; background:#dfd; left:40%; top:20%; z-index:100002;'></div>";
-var CLOSE = "<div style='position:absolute; cursor:pointer; width:25px; height:25px; background:red; right:10px; top:10px; z-index:100002;'></div>";
-
-function initialize(doc) {
-	var els = [];
-	
-	var prog = $(PROGRESS).appendTo(doc.body).click(function() {
-		prog.remove();
-	});
-	
-	render(doc, function(canvas) {
-	
-		
-		var x = $(CLOSE).click(function() {
-			$(canvas).remove();
-			$(x).remove();
-		});
-		$(doc.body).append(x);
-		
-		$(canvas).
-			css("position", "absolute").
-			css("top", 0).css("left", 0).
-			css("background", "white").
-			css("z-index", "100001");
-		
-		doc.body.appendChild(canvas);
-		
-		prog.fadeOut();
-		
-	}, function(msg) {
-		prog.html(msg);
-	});
+if (window.parent != window && window.parent.drawWindowReady) {
+	$(function() { window.parent.drawWindowReady(window, $); });
 }
 
-
-if (window.parent != window) {
-
-	var hasKey = window.parent.h2c && window.parent.h2c.key;
-	assert(hasKey, "No key provided");
-	
-	log("Frame has been loaded.  Key received.", window.parent.document.body, window.parent.h2c);
-	
-		
-	var container = window.frameElement.parentNode;
-	var parentDoc = window.parent.document;
-	$(document).ready(function() {
-		initialize(parentDoc);
-	});
-}
 
 // retrieveImage: a method to interface with image loading, errors, and proxy
 function retrieveImageFromCache(src) {
@@ -605,28 +549,11 @@ function retrieveImage(src, cb, ownerDocument, useBroken) {
 		return cb(retrieveImageFromCache(src));	
 	}
 	
-	var loadImageDirectly = true;
-	
-	if (src.indexOf("data:") == -1) {
-	    
-	    // Check if we can download this
-	    var original = new URI(src);
-	    var authority = original.getAuthority();
-	    
-	    if (authority != document.location.host) {
-	    	log("Going to need to proxy");
-	    }
-	}
-	
-	if (loadImageDirectly) {
-		var img = new Image();
-		img.onload = sendSuccess;
-		img.onerror = sendError;
-		img.src = src;
-	}
-	else {
-	
-	}
+	// TODO: Load the image from a proxy to prevent cross domain permission problems with reading imageData
+	var img = new Image();
+	img.onload = sendSuccess;
+	img.onerror = sendError;
+	img.src = src;
 	
 	function sendError() {
 		var img = new Image();
@@ -639,6 +566,14 @@ function retrieveImage(src, cb, ownerDocument, useBroken) {
 	    cb(this);
 	}
 }
+
+function assert(isTrue) {if (!isTrue){ log("ASSERTION FAILURE", arguments); }}
+function log() { if (window.console) { console.log(Array.prototype.slice.apply(arguments)); } }
+function time(n) { if (window.console) { console.time(n); } }
+function timeEnd(n) { if (window.console) { console.timeEnd(n); } }
+function log1() { if (logLevel >= 1) { log.apply(this, arguments); } }
+function log2() { if (logLevel >= 2) { log.apply(this, arguments); } }
+function error(msg) { throw "[H2C] " + msg; return false; }
 
 retrieveImage.cache = { };
 retrieveImage.transparentImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYAAABkW7XSAAADLUlEQVR4Ae3QQREAAAiAMPqXVjv4HUeCNXWLAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAwENgAfmTAf/IVJfgAAAAAElFTkSuQmCC";

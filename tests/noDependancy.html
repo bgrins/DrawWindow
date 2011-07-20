@@ -1,21 +1,9 @@
 <html>
 <head>
-<script src='../scripts/jquery-1.6.1.js'></script>
-<script src='../scripts/drawWindow.js'></script>
-<script type='text/javascript'>
-
-$(function() {
-	$("#draw-window-helper a").click(function() {
-		window.h2c.render(document, function(canvas) {
-			window.open(canvas.toDataURL("image/png"));
-		});
-		return false;
-	});
-});
-</script>
+<script src='../scripts/noDependancy.js'></script>
 </head>
 <body>
-<div id='draw-window-helper'><a href='#'>Draw Window</a></div>
+<div id='draw-window-helper'><a href='javascript:customDrawWindow();'>Draw Window</a></div>
 <h1>CSS Basic Elements</h1>
 
 <p>The purpose of this HTML is to help determine what default settings are with CSS and to make sure that all possible HTML Elements are included in this HTML so as to not miss any possible Elements when designing a site.</p>

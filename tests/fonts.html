@@ -3,8 +3,21 @@
 <html>
 <head>
 <title>Yo</title>
-<script type='text/javascript' src='../scripts/loader.js'></script>
-	<style>body { border:3px solid; font-size:110%;} strong{ font-size: 1.5em;  } p { font-size:76%; border: solid 10px;}
+<script src='../scripts/jquery-1.6.1.js'></script>
+<script src='../scripts/drawWindow.js'></script>
+<script type='text/javascript'>
+
+$(function() {
+	$("#draw-window-helper a").click(function() {
+		window.h2c.render(document, function(canvas) {
+			window.open(canvas.toDataURL("image/png"));
+		});
+		return false;
+	});
+});
+</script>
+
+<style>body { border:3px solid; font-size:110%;} strong{ font-size: 1.5em;  } p { font-size:76%; border: solid 10px;}
 	
 	.right { text-align:right; }
 	.float {width:500px; float:right; }
