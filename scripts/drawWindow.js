@@ -204,7 +204,7 @@ function el(dom, onready) {
 	
 	//log("Initialized " + this.tagName, this);
 	
-	this.children = $(dom).children().map(function() {
+	this.children = $(dom).children(":not(.drawWindow-ignore)").map(function() {
 	    return new el(this);
 	}).sort(orderByZIndex);
 	
