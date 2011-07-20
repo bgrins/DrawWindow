@@ -98,7 +98,7 @@ window.drawWindowReady = function(innerWin, $) {
 		prog.html(msg);
 	}
 	
-	innerWin.h2c.render(parentDoc, ondone, onprog);
+	innerWin.drawWindow(parentDoc, ondone, onprog);
 }
 
 window.customDrawWindow = function() {
