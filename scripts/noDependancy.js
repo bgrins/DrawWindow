@@ -7,13 +7,11 @@ function frameHTML(cache) {
 	var scriptPath = "localhost/~brian/DrawWindow/scripts/";
 	var host = (("https:" == document.location.protocol) ? "https://" : "http://");
 	var src = host + scriptPath + "compiled.js";
-	var src1 = host + scriptPath + "jquery-1.6.1.js";
 	var src2 = host + scriptPath + "drawWindow.js" + (cache ? "" : "?dt=" + (new Date()).getTime());
 	var flashcanvas = host + scriptPath + "flashcanvaspro/flashcanvas.js";
 	
 	html.push("<html><head>");
 	/*html.push("<script type='text/javascript' src='"+src+"'></script>");*/
-	html.push("<script type='text/javascript' src='"+src1+"'></script>");
 	html.push("<script type='text/javascript' src='"+src2+"'></script>");
 	html.push("<!--[if lt IE 9]><script type='text/javascript' src='"+flashcanvas+"'></script><![endif]-->");
 	html.push("</head><body>Loading</body></html>");
@@ -67,38 +65,42 @@ var PROGRESS = "<div class='drawWindow-ignore' style='position:fixed; cursor:poi
 var CLOSE = "<div style='position:absolute; cursor:pointer; width:25px; height:25px; background:red; right:10px; top:10px; z-index:100002;'></div>";
 
 // A custom display of the image (overlay the image on top of existing page with ability to close)
-window.drawWindowReady = function(innerWin, $) {
-		
-	var container = $("#h2c-wrapper")[0];
-	var parentDoc = document;
-	
-	
-	var prog = $(PROGRESS).appendTo(parentDoc.body).click(function() {
-	    prog.remove();
-	});
-	function ondone(canvas) {
-		var x = $(CLOSE).click(function() {
-			$(canvas).remove();
-			$(x).remove();
-		});
-		$(parentDoc.body).append(x);
-		
-		$(canvas).
-			css("position", "absolute").
-			css("top", 0).css("left", 0).
-			css("background", "white").
-			css("z-index", "100001");
-		
-		parentDoc.body.appendChild(canvas);
-		
-		prog.fadeOut();
-		
-	}
-	function onprog(msg) {
-		prog.html(msg);
-	}
-	
-	innerWin.drawWindow(parentDoc, ondone, onprog);
+window.drawWindowReady = function(innerWin) {
+    var container = document.getElementById('h2c-wrapper');
+    var parentDoc = document;
+
+    var prog = document.createElement('div');
+    prog.id = 'progress';
+    prog.addEventListener('click', function() {
+        prog.remove();
+    });
+    parentDoc.body.appendChild(prog);
+
+    function ondone(canvas) {
+        var x = document.createElement('div');
+        x.id = 'close';
+        x.addEventListener('click', function() {
+            canvas.remove();
+            x.remove();
+        });
+        parentDoc.body.appendChild(x);
+
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.background = 'white';
+        canvas.style.zIndex = '100001';
+
+        parentDoc.body.appendChild(canvas);
+
+        prog.style.display = 'none';
+    }
+
+    function onprog(msg) {
+        prog.innerHTML = msg;
+    }
+
+    innerWin.drawWindow(parentDoc, ondone, onprog);
 }
 
 window.customDrawWindow = function() {
