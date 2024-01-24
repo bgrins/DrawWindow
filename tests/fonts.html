@@ -3,16 +3,16 @@
 <html>
 <head>
 <title>Yo</title>
-<script src='../scripts/jquery-1.6.1.js'></script>
 <script src='../scripts/drawWindow.js'></script>
 <script type='text/javascript'>
-$(function() {
-	$("#draw-window").click(function() {
-		window.drawWindow(document, function(canvas) {
-			window.open(canvas.toDataURL("image/png"));
-		});
-		return false;
-	});
+document.addEventListener('DOMContentLoaded', function() {
+    var drawWindowButton = document.getElementById('draw-window');
+    drawWindowButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        window.drawWindow(document, function(canvas) {
+            window.open(canvas.toDataURL("image/png"));
+        });
+    });
 });
 </script>
 
